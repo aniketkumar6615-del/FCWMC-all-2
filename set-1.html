@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Set 1 - Wireless Communication</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        .header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .back-btn {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #764ba2;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            transition: background 0.3s;
+        }
+
+        .back-btn:hover {
+            background: #667eea;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .toggle-container {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .toggle-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 30px;
+            background: #ccc;
+            border-radius: 30px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .toggle-switch.active {
+            background: #667eea;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 3px;
+            left: 3px;
+            width: 24px;
+            height: 24px;
+            background: white;
+            border-radius: 50%;
+            transition: left 0.3s;
+        }
+
+        .toggle-switch.active .toggle-slider {
+            left: 33px;
+        }
+
+        .progress-info {
+            font-size: 1.1em;
+            color: #555;
+        }
+
+        .question-card {
+            background: #fff;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+        }
+
+        .question-card.correct {
+            border-color: #4caf50;
+            background: #f1f8f4;
+        }
+
+        .question-card.incorrect {
+            border-color: #f44336;
+            background: #fef1f0;
+        }
+
+        .question-number {
+            font-weight: bold;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .option {
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: white;
+        }
+
+        .option:hover {
+            border-color: #667eea;
+            background: #f8f9ff;
+        }
+
+        .option.selected {
+            border-color: #667eea;
+            background: #e8eaf6;
+        }
+
+        .option.correct {
+            border-color: #4caf50;
+            background: #e8f5e9;
+        }
+
+        .option.incorrect {
+            border-color: #f44336;
+            background: #ffebee;
+        }
+
+        .feedback {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: 600;
+        }
+
+        .feedback.correct {
+            background: #4caf50;
+            color: white;
+        }
+
+        .feedback.incorrect {
+            background: #f44336;
+            color: white;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            background: #764ba2;
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .results {
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 15px;
+            margin-top: 20px;
+        }
+
+        .results h2 {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+        }
+
+        .score {
+            font-size: 3em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+
+        .results-actions {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-top: 30px;
+            flex-wrap: wrap;
+        }
+
+        .results-btn {
+            padding: 12px 30px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.3s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .results-btn:hover {
+            transform: translateY(-3px);
+        }
+
+        .credit {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #eee;
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        .section-header {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 30px 0 20px 0;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .controls {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .container {
+                padding: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Back to Home</a>
+            <h1>📡 Set 1 - Wireless Communication Quiz</h1>
+            <p>80 Questions | Fundamentals & LTE Basics</p>
+        </div>
+
+        <div class="controls">
+            <div class="toggle-container">
+                <span class="toggle-label">Instant Feedback:</span>
+                <div class="toggle-switch" id="feedbackToggle">
+                    <div class="toggle-slider"></div>
+                </div>
+                <span id="toggleStatus">OFF</span>
+            </div>
+            <div class="progress-info">
+                Question <span id="current">0</span> of <span id="total">80</span>
+            </div>
+        </div>
+
+        <div id="quizContainer"></div>
+
+        <button class="submit-btn" id="submitBtn">Submit Quiz</button>
+
+        <div class="credit">Created by Adi Bhai</div>
+    </div>
+
+    <script>
+        const questions = [
+            // Section A - Simple MCQs
+            {q: "Wireless communication primarily uses which medium?", opts: ["Copper wires", "Optical fiber", "Air", "Underwater cables"], ans: 2},
+            {q: "Mobile communication started with which generation?", opts: ["1G", "2G", "3G", "4G"], ans: 0},
+            {q: "The frequency unit \"Hz\" represents:", opts: ["Power", "Cycles per second", "Noise", "Speed"], ans: 1},
+            {q: "AM varies the ____ of the carrier.", opts: ["Frequency", "Phase", "Amplitude", "Bandwidth"], ans: 2},
+            {q: "FM varies the ____.", opts: ["Amplitude", "Frequency", "Phase", "Symbol rate"], ans: 1},
+            {q: "Digital modulation used in LTE is:", opts: ["AM", "FM", "QAM/PSK", "PWM"], ans: 2},
+            {q: "FDMA assigns users separate:", opts: ["Time slots", "Codes", "Frequencies", "Beams"], ans: 2},
+            {q: "TDMA divides a channel into:", opts: ["Frequencies", "Time slots", "Codes", "Symbols"], ans: 1},
+            {q: "CDMA uses unique:", opts: ["Frequency bands", "Time slots", "Codes", "Antennas"], ans: 2},
+            {q: "OFDMA is used in:", opts: ["2G", "3G", "4G", "1G"], ans: 2},
+            {q: "The basic element of a cellular network is:", opts: ["Router", "Cell", "Hub", "Switch"], ans: 1},
+            {q: "Handoff means:", opts: ["Changing SIM cards", "Shutting down the cell", "Transfer of call between cells", "Roaming activation"], ans: 2},
+            {q: "The core network of LTE is:", opts: ["BSC", "MSC", "EPC", "IMS"], ans: 2},
+            {q: "eNodeB is part of the:", opts: ["2G", "3G", "4G", "Wi-Fi"], ans: 2},
+            {q: "MME handles:", opts: ["User data", "Mobility & control", "Billing", "RF tuning"], ans: 1},
+            {q: "PGW provides:", opts: ["Radio access", "IP services", "Authentication", "Handover"], ans: 1},
+            {q: "NAS protocol works between:", opts: ["UE & eNodeB", "UE & MME", "eNB & SGW", "SGW & PGW"], ans: 1},
+            {q: "RLC layer performs:", opts: ["Coding", "Power control", "ARQ", "Paging"], ans: 2},
+            {q: "PDCP handles:", opts: ["Header compression", "Frequency hopping", "Coding", "MIMO"], ans: 0},
+            {q: "The first step in LTE attach is:", opts: ["Bearer setup", "RRC connection request", "Paging", "SGW update"], ans: 1},
+            {q: "IMSI is stored in:", opts: ["eNodeB", "EPC", "SIM", "Antenna"], ans: 2},
+            {q: "5G uses which new spectrum category?", opts: ["Visible light", "mmWave", "IR", "Audio"], ans: 1},
+            {q: "Massive MIMO increases:", opts: ["Noise", "Latency", "Capacity", "Battery usage"], ans: 2},
+            {q: "Beamforming focuses:", opts: ["Power evenly", "Power directionally", "Noise", "Handover"], ans: 1},
+            {q: "SGW stands for:", opts: ["Service Gateway", "SGateway", "Serving Gateway", "Switching Gateway"], ans: 2},
+            {q: "Which layer is closest to hardware?", opts: ["PDCP", "RLC", "MAC", "PHY"], ans: 3},
+            {q: "4G supports peak data rate around:", opts: ["50 kbps", "1 Mbps", "100 Mbps+", "1 Tbps"], ans: 2},
+            {q: "LTE uses:", opts: ["Circuit switching", "Packet switching", "Manual switching", "Hybrid circuit"], ans: 1},
+            {q: "HSS stores:", opts: ["Radio parameters", "User profiles & authentication data", "Billing", "IP routing"], ans: 1},
+            {q: "QAM uses combinations of:", opts: ["Amplitude & frequency", "Frequency & phase", "Amplitude & phase", "Noise & gain"], ans: 2},
+            {q: "The basic 5G node is called:", opts: ["eNodeB", "gNodeB", "BSC", "BTS"], ans: 1},
+            {q: "1G uses:", opts: ["Analog", "Digital", "IP packets", "mmWave"], ans: 0},
+            {q: "2G introduced:", opts: ["Digital voice", "100 Mbps", "Beamforming", "TCP/IP"], ans: 0},
+            {q: "3G introduced:", opts: ["SMS", "Mobile internet", "Analog modulation", "AMPS"], ans: 1},
+            {q: "Handover between different RATs is called:", opts: ["Intra-cell", "Inter-RAT", "Warm handover", "IMS handover"], ans: 1},
+            {q: "LTE frame duration is:", opts: ["1 ms", "10 ms", "100 ms", "1 sec"], ans: 1},
+            {q: "The protocol stack is divided into:", opts: ["2 layers", "3 layers", "4 layers", "1 layer"], ans: 1},
+            {q: "EIR stores:", opts: ["Equipment identity", "User plan", "Cell data", "RF levels"], ans: 0},
+            {q: "UE stands for:", opts: ["Unified Equipment", "User Entity", "User Equipment", "Universal End"], ans: 2},
+            {q: "4G does NOT support:", opts: ["VoLTE", "Packet switching", "High mobility", "Circuit switching"], ans: 3},
+            
+            // Section B - Paragraph-Based MCQs
+            {section: "SECTION B — Paragraph-Based MCQs (40 × 1 = 40 marks)"},
+            {para: "Paragraph 1 (Q41–Q44): A user switches on the phone and moves into a new LTE cell. The UE sends an RRC Connection Request, followed by NAS Attach Request. The MME authenticates the user with the HSS and establishes a default bearer via SGW and PGW."},
+            {q: "The first signaling message is:", opts: ["NAS", "RRC Connection Request", "PDCP header", "Paging"], ans: 1},
+            {q: "Authentication uses:", opts: ["SGW", "PGW", "HSS", "PHY"], ans: 2},
+            {q: "The bearer created first is:", opts: ["Dedicated bearer", "Default bearer", "Temporary bearer", "Circuit bearer"], ans: 1},
+            {q: "Default bearer provides:", opts: ["IP connectivity", "Voice only", "Paging only", "Handover"], ans: 0},
+            
+            {para: "Paragraph 2 (Q45–Q48): In a cellular network, frequency reuse allows the same frequency channels to be used in non-adjacent cells. Cluster sizes (N) such as 3, 4, or 7 define the reuse pattern."},
+            {q: "Frequency reuse improves:", opts: ["Latency", "Coverage & capacity", "Modulation", "Noise"], ans: 1},
+            {q: "Larger cluster size reduces:", opts: ["Capacity", "SNR", "Security", "Battery drain"], ans: 0},
+            {q: "Reusing frequencies too close causes:", opts: ["Handover", "Interference", "Paging", "Modulation errors"], ans: 1},
+            {q: "Reuse is key to:", opts: ["Wi-Fi only", "Cellular concept", "SDN", "Optical fiber"], ans: 1},
+            
+            {para: "Paragraph 3 (Q49–Q52): An FM radio station broadcasts using frequency modulation, where the carrier frequency varies according to the message signal. FM offers better noise immunity than AM but requires larger bandwidth."},
+            {q: "FM varies:", opts: ["Amplitude", "Phase", "Frequency", "Code"], ans: 2},
+            {q: "FM has better:", opts: ["Complexity", "Noise immunity", "Distortion", "Delay"], ans: 1},
+            {q: "FM requires:", opts: ["Less bandwidth", "More bandwidth", "Zero bandwidth", "No carrier"], ans: 1},
+            {q: "FM is used widely in:", opts: ["Digital channels", "Broadcast radio", "LTE", "5G"], ans: 1},
+            
+            {para: "Paragraph 4 (Q53–Q56): LTE uses OFDMA in the downlink, dividing the spectrum into many orthogonal subcarriers. This increases spectral efficiency and minimizes inter-carrier interference."},
+            {q: "OFDMA divides bandwidth into:", opts: ["One carrier", "Orthogonal subcarriers", "Time slots", "Codes"], ans: 1},
+            {q: "OFDMA improves:", opts: ["Handover", "Spectral efficiency", "Billing", "Propagation"], ans: 1},
+            {q: "Orthogonality reduces:", opts: ["Data rate", "Interference", "Modulation", "Paging"], ans: 1},
+            {q: "OFDMA is used in:", opts: ["2G", "3G", "4G DL", "4G UL"], ans: 2},
+            
+            {para: "Paragraph 5 (Q57–Q60): In LTE, PDCP performs header compression, ciphering, and integrity protection. It ensures efficient transmission by reducing overhead."},
+            {q: "PDCP compresses:", opts: ["IP headers", "Frequencies", "Antenna gain", "Battery use"], ans: 0},
+            {q: "PDCP provides:", opts: ["Modulation", "Ciphering", "RF tuning", "Coding"], ans: 1},
+            {q: "PDCP helps reduce:", opts: ["Noise", "Overhead", "Cell size", "SINR"], ans: 1},
+            {q: "PDCP sits above:", opts: ["RLC", "MAC", "PHY", "Antenna"], ans: 0},
+            
+            {para: "Paragraph 6 (Q61–Q64): 5G introduces the use of mmWave frequencies offering extremely high bandwidth but requiring dense small-cell deployment due to limited range."},
+            {q: "mmWave offers:", opts: ["Low bandwidth", "High bandwidth", "Low data rate", "Narrowband"], ans: 1},
+            {q: "mmWave suffers due to:", opts: ["High penetration", "Low attenuation", "Short range", "Long range"], ans: 2},
+            {q: "To compensate, networks use:", opts: ["Large towers", "Small cells", "AM modulation", "TDMA"], ans: 1},
+            {q: "mmWave is used in:", opts: ["2G", "3G", "5G", "PSTN"], ans: 2},
+            
+            {para: "Paragraph 7 (Q65–Q68): The SGW acts as a mobility anchor for inter-eNodeB handovers. It routes user IP packets between the RAN and core."},
+            {q: "SGW is a:", opts: ["Radio node", "Mobility anchor", "Authentication node", "Paging node"], ans: 1},
+            {q: "SGW routes:", opts: ["RF signals", "User IP packets", "SIM data", "Paging"], ans: 1},
+            {q: "SGW is part of:", opts: ["RAN", "EPC", "PHY layer", "IMS"], ans: 1},
+            {q: "SGW works closely with:", opts: ["HSS", "eNodeB", "EIR", "BTS"], ans: 1},
+            
+            {para: "Paragraph 8 (Q69–Q72): MIMO technology uses multiple antennas to increase throughput and reliability. In LTE and 5G, MIMO enables spatial multiplexing and improved SINR."},
+            {q: "MIMO uses:", opts: ["One antenna", "Multiple antennas", "No antennas", "Beam codes"], ans: 1},
+            {q: "MIMO increases:", opts: ["Latency", "Throughput", "Fading", "Distance"], ans: 1},
+            {q: "MIMO allows:", opts: ["Spatial multiplexing", "AM signals", "Paging", "SIM activation"], ans: 0},
+            {q: "MIMO improves:", opts: ["SINR", "Noise", "Circuit delay", "Billing"], ans: 0},
+            
+            {para: "Paragraph 9 (Q73–Q76): The EPC supports mobility, user authentication, charging, and IP routing. It replaces older circuit-switched architecture."},
+            {q: "EPC is used in:", opts: ["2G", "3G", "4G", "PSTN"], ans: 2},
+            {q: "EPC supports:", opts: ["Circuit switching", "Packet switching", "Analog switching", "No switching"], ans: 1},
+            {q: "EPC provides:", opts: ["Authentication", "Weather info", "RF tuning", "Billing only"], ans: 0},
+            {q: "EPC routes:", opts: ["Voice only", "IP packets", "Noise", "Modulation"], ans: 1},
+            
+            {para: "Paragraph 10 (Q77–Q80): LTE uses a layered protocol stack comprising PDCP, RLC, MAC, and PHY. Each layer has specific roles: PDCP (compression/ciphering), RLC (ARQ/segmentation), MAC (scheduling), PHY (modulation/coding)."},
+            {q: "Which layer performs ARQ?", opts: ["PDCP", "RLC", "MAC", "PHY"], ans: 1},
+            {q: "Scheduling occurs in:", opts: ["PDCP", "RLC", "MAC", "PHY"], ans: 2},
+            {q: "Modulation happens in:", opts: ["PDCP", "RLC", "MAC", "PHY"], ans: 3},
+            {q: "Ciphering occurs in:", opts: ["PDCP", "RLC", "MAC", "PHY"], ans: 0}
+        ];
+
+        let userAnswers = [];
+        let instantFeedback = false;
+        let quizSubmitted = false;
+        const toggle = document.getElementById('feedbackToggle');
+        const toggleStatus = document.getElementById('toggleStatus');
+        const submitBtn = document.getElementById('submitBtn');
+        const quizContainer = document.getElementById('quizContainer');
+
+        toggle.addEventListener('click', () => {
+            instantFeedback = !instantFeedback;
+            toggle.classList.toggle('active');
+            toggleStatus.textContent = instantFeedback ? 'ON' : 'OFF';
+        });
+
+        function renderQuiz() {
+            let html = '';
+            let questionNumber = 1;
+            
+            questions.forEach((item, index) => {
+                if (item.section) {
+                    html += `<div class="section-header">${item.section}</div>`;
+                } else if (item.para) {
+                    html += `<div class="question-card" style="background: #e3f2fd; border-color: #2196f3;">
+                        <div style="color: #1976d2; font-weight: 600; line-height: 1.6;">${item.para}</div>
+                    </div>`;
+                } else {
+                    html += `
+                        <div class="question-card" id="q${index}">
+                            <div class="question-number">Question ${questionNumber}</div>
+                            <div class="question-text">${item.q}</div>
+                            <div class="options">
+                                ${item.opts.map((opt, i) => `
+                                    <div class="option" data-q="${index}" data-opt="${i}">
+                                        ${String.fromCharCode(65 + i)}) ${opt}
+                                    </div>
+                                `).join('')}
+                            </div>
+                            <div class="feedback" id="feedback${index}" style="display: none;"></div>
+                        </div>
+                    `;
+                    questionNumber++;
+                }
+            });
+            
+            quizContainer.innerHTML = html;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answered = userAnswers.filter(a => a !== undefined).length;
+            const totalQuestions = questions.filter(q => q.q).length;
+            document.getElementById('current').textContent = answered;
+            document.getElementById('total').textContent = totalQuestions;
+        }
+
+        quizContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('option') && !quizSubmitted) {
+                const qIndex = parseInt(e.target.dataset.q);
+                const optIndex = parseInt(e.target.dataset.opt);
+                
+                const allOpts = document.querySelectorAll(`[data-q="${qIndex}"]`);
+                allOpts.forEach(opt => opt.classList.remove('selected'));
+                e.target.classList.add('selected');
+                
+                userAnswers[qIndex] = optIndex;
+                updateProgress();
+                
+                if (instantFeedback) {
+                    showFeedback(qIndex, optIndex);
+                }
+            }
+        });
+
+        function showFeedback(qIndex, userAns) {
+            const question = questions[qIndex];
+            const feedbackEl = document.getElementById(`feedback${qIndex}`);
+            const questionCard = document.getElementById(`q${qIndex}`);
+            const allOpts = document.querySelectorAll(`[data-q="${qIndex}"]`);
+            
+            allOpts.forEach((opt, i) => {
+                opt.classList.remove('correct', 'incorrect');
+                if (i === question.ans) {
+                    opt.classList.add('correct');
+                }
+                if (i === userAns && userAns !== question.ans) {
+                    opt.classList.add('incorrect');
+                }
+            });
+            
+            if (userAns === question.ans) {
+                feedbackEl.className = 'feedback correct';
+                feedbackEl.textContent = '✓ Correct!';
+                questionCard.classList.add('correct');
+            } else {
+                feedbackEl.className = 'feedback incorrect';
+                feedbackEl.textContent = `✗ Incorrect. Correct answer: ${String.fromCharCode(65 + question.ans)}) ${question.opts[question.ans]}`;
+                questionCard.classList.add('incorrect');
+            }
+            feedbackEl.style.display = 'block';
+        }
+
+        submitBtn.addEventListener('click', () => {
+            quizSubmitted = true;
+            let correct = 0;
+            let total = 0;
+            
+            questions.forEach((item, index) => {
+                if (item.q) {
+                    total++;
+                    if (userAnswers[index] !== undefined) {
+                        showFeedback(index, userAnswers[index]);
+                        if (userAnswers[index] === item.ans) {
+                            correct++;
+                        }
+                    }
+                }
+            });
+            
+            const percentage = ((correct / total) * 100).toFixed(1);
+            
+            const resultsHTML = `
+                <div class="results">
+                    <h2>🎉 Quiz Completed!</h2>
+                    <div class="score">${correct} / ${total}</div>
+                    <p style="font-size: 1.5em;">Your Score: ${percentage}%</p>
+                    <p style="margin-top: 20px; font-size: 1.1em;">
+                        ${percentage >= 90 ? '🌟 Outstanding! Excellent work!' :
+                          percentage >= 75 ? '👍 Great job! Keep it up!' :
+                          percentage >= 60 ? '👌 Good effort! Review the incorrect answers.' :
+                          '📚 Keep studying! You can do better!'}
+                    </p>
+                    <div class="results-actions">
+                        <button class="results-btn" onclick="location.reload()">Retake Quiz</button>
+                        <a href="index.html" class="results-btn">Back to Home</a>
+                    </div>
+                </div>
+            `;
+            
+            submitBtn.insertAdjacentHTML('afterend', resultsHTML);
+            submitBtn.style.display = 'none';
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        renderQuiz();
+    </script>
+</body>
+</html>
