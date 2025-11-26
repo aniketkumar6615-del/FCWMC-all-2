@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz Set 8 - Wireless Communication</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; background: white; border-radius: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3); padding: 30px; }
+        .header { text-align: center; margin-bottom: 30px; padding-bottom: 20px; border-bottom: 3px solid #667eea; }
+        .header h1 { color: #667eea; margin-bottom: 10px; }
+        .back-btn { display: inline-block; padding: 10px 20px; background: #764ba2; color: white; text-decoration: none; border-radius: 8px; margin-bottom: 15px; transition: background 0.3s; }
+        .back-btn:hover { background: #667eea; }
+        .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; padding: 20px; background: #f8f9fa; border-radius: 10px; flex-wrap: wrap; gap: 15px; }
+        .toggle-container { display: flex; align-items: center; gap: 15px; }
+        .toggle-label { font-weight: 600; color: #333; }
+        .toggle-switch { position: relative; width: 60px; height: 30px; background: #ccc; border-radius: 30px; cursor: pointer; transition: background 0.3s; }
+        .toggle-switch.active { background: #667eea; }
+        .toggle-slider { position: absolute; top: 3px; left: 3px; width: 24px; height: 24px; background: white; border-radius: 50%; transition: left 0.3s; }
+        .toggle-switch.active .toggle-slider { left: 33px; }
+        .progress-info { font-size: 1.1em; color: #555; }
+        .question-card { background: #fff; border: 2px solid #e0e0e0; border-radius: 10px; padding: 25px; margin-bottom: 20px; transition: border-color 0.3s; }
+        .question-card.correct { border-color: #4caf50; background: #f1f8f4; }
+        .question-card.incorrect { border-color: #f44336; background: #fef1f0; }
+        .question-number { font-weight: bold; color: #667eea; margin-bottom: 10px; }
+        .question-text { font-size: 1.1em; margin-bottom: 20px; color: #333; line-height: 1.6; }
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option { padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; cursor: pointer; transition: all 0.3s; background: white; }
+        .option:hover { border-color: #667eea; background: #f8f9ff; }
+        .option.selected { border-color: #667eea; background: #e8eaf6; }
+        .option.correct { border-color: #4caf50; background: #e8f5e9; }
+        .option.incorrect { border-color: #f44336; background: #ffebee; }
+        .feedback { margin-top: 10px; padding: 10px; border-radius: 5px; font-weight: 600; }
+        .feedback.correct { background: #4caf50; color: white; }
+        .feedback.incorrect { background: #f44336; color: white; }
+        .submit-btn { width: 100%; padding: 15px; background: #667eea; color: white; border: none; border-radius: 10px; font-size: 1.2em; font-weight: bold; cursor: pointer; transition: background 0.3s; margin-top: 20px; }
+        .submit-btn:hover { background: #764ba2; }
+        .submit-btn:disabled { background: #ccc; cursor: not-allowed; }
+        .results { text-align: center; padding: 40px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; margin-top: 20px; }
+        .results h2 { font-size: 2.5em; margin-bottom: 20px; }
+        .score { font-size: 3em; font-weight: bold; margin: 20px 0; }
+        .results-actions { display: flex; gap: 15px; justify-content: center; margin-top: 30px; flex-wrap: wrap; }
+        .results-btn { padding: 12px 30px; background: white; color: #667eea; border: none; border-radius: 8px; font-size: 1.1em; font-weight: bold; cursor: pointer; transition: transform 0.3s; text-decoration: none; display: inline-block; }
+        .results-btn:hover { transform: translateY(-3px); }
+        .credit { text-align: center; margin-top: 30px; padding-top: 20px; border-top: 2px solid #eee; color: #888; font-size: 0.9em; }
+        .section-header { background: #667eea; color: white; padding: 15px; border-radius: 10px; margin: 30px 0 20px 0; font-size: 1.3em; font-weight: bold; }
+        @media (max-width: 600px) { .controls { flex-direction: column; align-items: flex-start; } .container { padding: 15px; } }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Back to Home</a>
+            <h1>📡 Set 8 - Wireless Communication Quiz</h1>
+            <p>80 Questions | Wireless Propagation, LTE/5G Core & Radio KPIs</p>
+        </div>
+        <div class="controls">
+            <div class="toggle-container">
+                <span class="toggle-label">Instant Feedback:</span>
+                <div class="toggle-switch" id="feedbackToggle"><div class="toggle-slider"></div></div>
+                <span id="toggleStatus">OFF</span>
+            </div>
+            <div class="progress-info">Question <span id="current">0</span> of <span id="total">80</span></div>
+        </div>
+        <div id="quizContainer"></div>
+        <button class="submit-btn" id="submitBtn">Submit Quiz</button>
+        <div class="credit">Created by Adi Bhai</div>
+    </div>
+    <script>
+        const questions = [
+            {q: "Wireless signals can propagate through:", opts: ["Vacuum", "Copper", "Fiber", "Wood only"], ans: 0},
+            {q: "The unit of frequency is:", opts: ["Watt", "Volt", "Hz", "Ohm"], ans: 2},
+            {q: "Which modulation is used in LTE for DL?", opts: ["OFDM", "CDMA", "AM", "FSK"], ans: 0},
+            {q: "Channel bandwidth of LTE ranges up to:", opts: ["5 MHz", "20 MHz", "50 MHz", "100 MHz"], ans: 1},
+            {q: "MME is responsible for:", opts: ["Paging", "Mobility", "Authentication", "All"], ans: 3},
+            {q: "CP (Cyclic Prefix) reduces:", opts: ["ISI", "Noise", "Call drops", "Paging"], ans: 0},
+            {q: "A cell's coverage area is determined by:", opts: ["Power", "Frequency", "Antenna height", "All"], ans: 3},
+            {q: "In QAM, bits per symbol increase with:", opts: ["Constellation order", "Frequency", "Power", "Noise"], ans: 0},
+            {q: "5G NR supports:", opts: ["OFDM", "CDMA", "SC-FDMA only", "PWM"], ans: 0},
+            {q: "RLC TM used for:", opts: ["Broadcast", "Data", "IMS", "Paging"], ans: 0},
+            {q: "4G LTE is based on:", opts: ["Circuit switching", "Packet switching", "No switching", "Hybrid"], ans: 1},
+            {q: "UE means:", opts: ["User Equipment", "Unique Entity", "Unit Energy", "Usage End"], ans: 0},
+            {q: "RSRP measures:", opts: ["RS power", "Quality", "Interference", "Delay"], ans: 0},
+            {q: "RSRQ measures:", opts: ["SINR", "Quality", "Paging rate", "Bandwidth"], ans: 1},
+            {q: "SGW routes:", opts: ["RF", "User packets", "Power", "Paging"], ans: 1},
+            {q: "Beamforming mainly used in:", opts: ["2G", "5G", "PSTN", "FM Radio"], ans: 1},
+            {q: "LTE uplink uses:", opts: ["SC-FDMA", "OFDMA", "CDMA", "AM"], ans: 0},
+            {q: "PDCP responsible for:", opts: ["Header compression", "Ciphering", "Integrity", "All"], ans: 3},
+            {q: "2G stands for:", opts: ["Second Generation", "Signal Generation", "Standard Generation", "Sequential Group"], ans: 0},
+            {q: "5G target latency:", opts: ["1s", "500ms", "1ms", "50ms"], ans: 2},
+            {q: "Which is NOT a 5G service class?", opts: ["URLLC", "eMBB", "mMTC", "PDCP"], ans: 3},
+            {q: "3G introduced:", opts: ["Internet", "Fiber", "Microwave", "AM"], ans: 0},
+            {q: "LTE PRB consists of:", opts: ["12 subcarriers", "1 symbol", "1 subframe", "A frame"], ans: 0},
+            {q: "VoLTE uses:", opts: ["SIP", "AMR-WB", "IMS", "All"], ans: 3},
+            {q: "IP address in LTE assigned by:", opts: ["MME", "PGW", "SGW", "UE"], ans: 1},
+            {q: "5G FR1 uses frequencies:", opts: ["<6 GHz", "30 GHz", "60 GHz", "100 GHz"], ans: 0},
+            {q: "HARQ located at:", opts: ["RLC", "MAC", "PDCP", "PHY"], ans: 1},
+            {q: "X2 interface is between:", opts: ["eNB–eNB", "eNB–MME", "gNB–UPF", "SGW–PGW"], ans: 0},
+            {q: "IMS manages:", opts: ["Circuit voice", "VoLTE", "Paging", "Handover"], ans: 1},
+            {q: "OFDM orthogonality avoids:", opts: ["ISI", "ICI", "Paging", "IMEI errors"], ans: 1},
+            {q: "1G used which modulation?", opts: ["FM", "GMSK", "QAM", "FSK"], ans: 0},
+            {q: "5G NR uses:", opts: ["Variety of numerology", "Only 15 kHz spacing", "Only 1 MHz spacing", "Analog modulation"], ans: 0},
+            {q: "EPC uses:", opts: ["S1", "X2", "S6a", "All"], ans: 3},
+            {q: "MIMO 4x4 has:", opts: ["4 TX + 4 RX", "2 TX", "1 TX", "8 TX"], ans: 0},
+            {q: "Higher QAM →", opts: ["Higher data rate", "Lower data rate", "No change", "Less bits/symbol"], ans: 0},
+            {q: "RLC UM used for:", opts: ["Video streaming", "Broadcast", "Paging", "SMS"], ans: 0},
+            {q: "Paging attempt because:", opts: ["UE idle", "UE moving", "UE powered off", "UE attached"], ans: 0},
+            {q: "3G uses:", opts: ["CDMA", "TDMA", "FDMA", "GSM"], ans: 0},
+            {q: "FR2 is also called:", opts: ["Sub-6", "mmWave", "Microwave", "Fiber band"], ans: 1},
+            {q: "SNR is ratio of:", opts: ["Power/noise", "Noise/power", "Bandwidth/power", "Paging/rate"], ans: 0},
+            
+            {section: "SECTION B — Paragraph-Based MCQs (40 Questions)"},
+            {para: "Paragraph 1 (Q41–Q44): UE performs RRC setup, NAS attach, authentication, security, and default bearer creation. PGW assigns IP."},
+            {q: "Authentication performed by:", opts: ["IMS", "HSS", "PGW", "SGW"], ans: 1},
+            {q: "Security enabled after:", opts: ["Paging", "RACH", "Authentication", "Detach"], ans: 2},
+            {q: "IP assigned by:", opts: ["MME", "PGW", "SGW", "RLC"], ans: 1},
+            {q: "Bearer created:", opts: ["Default", "Dedicated", "Paging", "None"], ans: 0},
+            
+            {para: "Paragraph 2 (Q45–Q48): OFDM divides bandwidth into multiple orthogonal subcarriers. CP used for multipath immunity."},
+            {q: "OFDM subcarriers are:", opts: ["Random", "Orthogonal", "AM", "FM"], ans: 1},
+            {q: "CP reduces:", opts: ["ICI", "ISI", "Paging", "Delay"], ans: 1},
+            {q: "OFDM used in:", opts: ["4G/5G", "2G", "PSTN", "Analog systems"], ans: 0},
+            {q: "OFDM improves:", opts: ["Spectral efficiency", "Delay", "Paging", "IMEI"], ans: 0},
+            
+            {para: "Paragraph 3 (Q49–Q52): VoLTE relies on IMS, SIP for signaling, RTP for media, and AMR-WB codec."},
+            {q: "SIP handles:", opts: ["Media", "Signaling", "Paging", "Random access"], ans: 1},
+            {q: "RTP carries:", opts: ["IMSI", "Voice", "Paging", "Authentication vectors"], ans: 1},
+            {q: "Codec used:", opts: ["AMR-WB", "PCM", "FM", "H.264"], ans: 0},
+            {q: "IMS manages:", opts: ["Calls", "Paging", "Power", "RACH"], ans: 0},
+            
+            {para: "Paragraph 4 (Q53–Q56): HARQ provides immediate retransmission for reliability with incremental redundancy."},
+            {q: "HARQ at:", opts: ["RLC", "MAC", "PHY", "IMS"], ans: 1},
+            {q: "HARQ is:", opts: ["Slow", "Fast", "Never used", "Ciphering"], ans: 1},
+            {q: "Redundancy used:", opts: ["Incremental", "Full", "None", "Random"], ans: 0},
+            {q: "HARQ boosts:", opts: ["Reliability", "Paging", "Modulation", "Cell selection"], ans: 0},
+            
+            {para: "Paragraph 5 (Q57–Q60): Beamforming utilized in 5G mmWave for directional high-gain transmissions."},
+            {q: "Beamforming improves:", opts: ["Noise", "SNR", "Paging", "Delay"], ans: 1},
+            {q: "mmWave suffers:", opts: ["Long range", "Short range", "No bandwidth", "No QoS"], ans: 1},
+            {q: "Beamforming helps counter:", opts: ["High penetration", "Poor penetration", "No modulation", "High coding"], ans: 1},
+            {q: "Mainly used in:", opts: ["5G", "2G", "PSTN", "GSM"], ans: 0},
+            
+            {para: "Paragraph 6 (Q61–Q64): 5GC uses AMF, SMF, UPF. SBA framework enables network slicing."},
+            {q: "AMF handles:", opts: ["UE registration", "Data", "Paging", "IMS"], ans: 0},
+            {q: "SMF manages:", opts: ["Session", "Paging", "Cipher", "Handover"], ans: 0},
+            {q: "UPF routes:", opts: ["RF", "User packets", "Voice only", "Paging"], ans: 1},
+            {q: "SBA enables:", opts: ["Network slicing", "Analog signaling", "Paging", "OFDM"], ans: 0},
+            
+            {para: "Paragraph 7 (Q65–Q68): Inter-RAT between LTE and NR ensures connectivity during low signal."},
+            {q: "RAT stands for:", opts: ["Radio Access Technology", "Random Allocation Tune", "Radio Antenna Technology", "Real Access Time"], ans: 0},
+            {q: "LTE → NR triggered by:", opts: ["High RSRP", "Low RSRP", "Paging", "IMS issue"], ans: 1},
+            {q: "NR uses:", opts: ["OFDM", "PWM", "Analog", "GSM"], ans: 0},
+            {q: "Handover ensures:", opts: ["Call drop", "Continuity", "High delay", "No service"], ans: 1},
+            
+            {para: "Paragraph 8 (Q69–Q72): Attach includes identity request, authentication, security, and bearer setup."},
+            {q: "Identity carries:", opts: ["IP", "IMSI", "PRB", "SNR"], ans: 1},
+            {q: "Keys generated during:", opts: ["Paging", "Authentication", "RACH", "QoS"], ans: 1},
+            {q: "NAS security includes:", opts: ["Cipher", "Integrity", "Both", "None"], ans: 2},
+            {q: "Bearer defines:", opts: ["QoS", "Paging", "Power", "Modulation"], ans: 0},
+            
+            {para: "Paragraph 9 (Q73–Q76): RSRP and RSRQ crucial for handover decision."},
+            {q: "RSRP low means:", opts: ["Good coverage", "Weak signal", "No interference", "Good QoS"], ans: 1},
+            {q: "RSRQ low means:", opts: ["High interference", "Low interference", "High SNR", "Paging"], ans: 0},
+            {q: "Handover triggered when:", opts: ["Weak signal", "High signal", "Paging", "IMS"], ans: 0},
+            {q: "Handover avoids:", opts: ["Call drop", "CQI", "IMEI", "Paging"], ans: 0},
+            
+            {para: "Paragraph 10 (Q77–Q80): FR1 suitable for wide-area coverage, FR2 for high data rate."},
+            {q: "FR1:", opts: ["<6 GHz", "24–40 GHz", "100 GHz", "200 GHz"], ans: 0},
+            {q: "FR2:", opts: ["<1 GHz", "24–40 GHz", "100 MHz", "Narrowband"], ans: 1},
+            {q: "FR1 best for:", opts: ["Indoor", "Large coverage", "High bandwidth", "mmWave"], ans: 1},
+            {q: "FR2 best for:", opts: ["eMBB", "Paging", "GSM", "Weak signals"], ans: 0}
+        ];
+
+        let userAnswers = [], instantFeedback = false, quizSubmitted = false;
+        const toggle = document.getElementById('feedbackToggle');
+        const toggleStatus = document.getElementById('toggleStatus');
+        const submitBtn = document.getElementById('submitBtn');
+        const quizContainer = document.getElementById('quizContainer');
+
+        toggle.addEventListener('click', () => {
+            instantFeedback = !instantFeedback;
+            toggle.classList.toggle('active');
+            toggleStatus.textContent = instantFeedback ? 'ON' : 'OFF';
+        });
+
+        function renderQuiz() {
+            let html = '', questionNumber = 1;
+            questions.forEach((item, index) => {
+                if (item.section) {
+                    html += `<div class="section-header">${item.section}</div>`;
+                } else if (item.para) {
+                    html += `<div class="question-card" style="background: #e3f2fd; border-color: #2196f3;"><div style="color: #1976d2; font-weight: 600; line-height: 1.6;">${item.para}</div></div>`;
+                } else {
+                    html += `<div class="question-card" id="q${index}"><div class="question-number">Question ${questionNumber}</div><div class="question-text">${item.q}</div><div class="options">${item.opts.map((opt, i) => `<div class="option" data-q="${index}" data-opt="${i}">${String.fromCharCode(65 + i)}) ${opt}</div>`).join('')}</div><div class="feedback" id="feedback${index}" style="display: none;"></div></div>`;
+                    questionNumber++;
+                }
+            });
+            quizContainer.innerHTML = html;
+            updateProgress();
+        }
+
+        function updateProgress() {
+            const answered = userAnswers.filter(a => a !== undefined).length;
+            const totalQuestions = questions.filter(q => q.q).length;
+            document.getElementById('current').textContent = answered;
+            document.getElementById('total').textContent = totalQuestions;
+        }
+
+        quizContainer.addEventListener('click', (e) => {
+            if (e.target.classList.contains('option') && !quizSubmitted) {
+                const qIndex = parseInt(e.target.dataset.q);
+                const optIndex = parseInt(e.target.dataset.opt);
+                const allOpts = document.querySelectorAll(`[data-q="${qIndex}"]`);
+                allOpts.forEach(opt => opt.classList.remove('selected'));
+                e.target.classList.add('selected');
+                userAnswers[qIndex] = optIndex;
+                updateProgress();
+                if (instantFeedback) showFeedback(qIndex, optIndex);
+            }
+        });
+
+        function showFeedback(qIndex, userAns) {
+            const question = questions[qIndex];
+            const feedbackEl = document.getElementById(`feedback${qIndex}`);
+            const questionCard = document.getElementById(`q${qIndex}`);
+            const allOpts = document.querySelectorAll(`[data-q="${qIndex}"]`);
+            allOpts.forEach((opt, i) => {
+                opt.classList.remove('correct', 'incorrect');
+                if (i === question.ans) opt.classList.add('correct');
+                if (i === userAns && userAns !== question.ans) opt.classList.add('incorrect');
+            });
+            if (userAns === question.ans) {
+                feedbackEl.className = 'feedback correct';
+                feedbackEl.textContent = '✓ Correct!';
+                questionCard.classList.add('correct');
+            } else {
+                feedbackEl.className = 'feedback incorrect';
+                feedbackEl.textContent = `✗ Incorrect. Correct answer: ${String.fromCharCode(65 + question.ans)}) ${question.opts[question.ans]}`;
+                questionCard.classList.add('incorrect');
+            }
+            feedbackEl.style.display = 'block';
+        }
+
+        submitBtn.addEventListener('click', () => {
+            quizSubmitted = true;
+            let correct = 0, total = 0;
+            questions.forEach((item, index) => {
+                if (item.q) {
+                    total++;
+                    if (userAnswers[index] !== undefined) {
+                        showFeedback(index, userAnswers[index]);
+                        if (userAnswers[index] === item.ans) correct++;
+                    }
+                }
+            });
+            const percentage = ((correct / total) * 100).toFixed(1);
+            const resultsHTML = `<div class="results"><h2>🎉 Quiz Completed!</h2><div class="score">${correct} / ${total}</div><p style="font-size: 1.5em;">Your Score: ${percentage}%</p><p style="margin-top: 20px; font-size: 1.1em;">${percentage >= 90 ? '🌟 Outstanding! Excellent work!' : percentage >= 75 ? '👍 Great job! Keep it up!' : percentage >= 60 ? '👌 Good effort! Review the incorrect answers.' : '📚 Keep studying! You can do better!'}</p><div class="results-actions"><button class="results-btn" onclick="location.reload()">Retake Quiz</button><a href="index.html" class="results-btn">Back to Home</a></div></div>`;
+            submitBtn.insertAdjacentHTML('afterend', resultsHTML);
+            submitBtn.style.display = 'none';
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        renderQuiz();
+    </script>
+</body>
+</html>
